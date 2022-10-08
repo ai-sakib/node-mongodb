@@ -84,37 +84,47 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
     const prodId = req.body.productId
-    let fetchedCart
-    let newQty = 1
 
-    req.user
-        .getCart()
-        .then(cart => {
-            fetchedCart = cart
-            return cart.getProducts({ where: { id: prodId } })
-        })
-        .then(products => {
-            let product
-            if (products.length) {
-                product = products[0]
-            }
-
-            if (product) {
-                let oldQty = product.cartItem.quantity
-                newQty = oldQty + 1
-            }
-
-            return Product.findByPk(prodId)
-        })
+    Product.find(prodId)
         .then(product => {
-            return fetchedCart.addProduct(product, {
-                through: { quantity: newQty },
-            })
+            return req.user.addToCart(product)
         })
         .then(result => {
+            console.log('postCart', result)
             res.redirect('/cart')
         })
         .catch(err => console.log(err))
+    // let fetchedCart
+    // let newQty = 1
+
+    // req.user
+    //     .getCart()
+    //     .then(cart => {
+    //         fetchedCart = cart
+    //         return cart.getProducts({ where: { id: prodId } })
+    //     })
+    //     .then(products => {
+    //         let product
+    //         if (products.length) {
+    //             product = products[0]
+    //         }
+
+    //         if (product) {
+    //             let oldQty = product.cartItem.quantity
+    //             newQty = oldQty + 1
+    //         }
+
+    //         return Product.findByPk(prodId)
+    //     })
+    //     .then(product => {
+    //         return fetchedCart.addProduct(product, {
+    //             through: { quantity: newQty },
+    //         })
+    //     })
+    //     .then(result => {
+    //         res.redirect('/cart')
+    //     })
+    //     .catch(err => console.log(err))
 }
 
 exports.getOrders = (req, res, next) => {
