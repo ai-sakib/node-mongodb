@@ -50,10 +50,8 @@ exports.deleteProduct = (req, res, next) => {
 exports.getCart = (req, res, next) => {
     req.user
         .getCart()
-        .then(cart => {
-            return cart.getProducts()
-        })
         .then(products => {
+            console.log('mapped2', products)
             res.render('shop/cart', {
                 path: '/cart',
                 pageTitle: 'Your Cart',
@@ -67,14 +65,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId
 
     req.user
-        .getCart()
-        .then(cart => {
-            return cart.getProducts({ where: { id: prodId } })
-        })
-        .then(products => {
-            const product = products[0]
-            return product.cartItem.destroy()
-        })
+        .deleteCartItem(prodId)
         .then(response => {
             console.log('CART ITEM DELETED')
             res.redirect('/cart')
@@ -90,41 +81,9 @@ exports.postCart = (req, res, next) => {
             return req.user.addToCart(product)
         })
         .then(result => {
-            console.log('postCart', result)
             res.redirect('/cart')
         })
         .catch(err => console.log(err))
-    // let fetchedCart
-    // let newQty = 1
-
-    // req.user
-    //     .getCart()
-    //     .then(cart => {
-    //         fetchedCart = cart
-    //         return cart.getProducts({ where: { id: prodId } })
-    //     })
-    //     .then(products => {
-    //         let product
-    //         if (products.length) {
-    //             product = products[0]
-    //         }
-
-    //         if (product) {
-    //             let oldQty = product.cartItem.quantity
-    //             newQty = oldQty + 1
-    //         }
-
-    //         return Product.findByPk(prodId)
-    //     })
-    //     .then(product => {
-    //         return fetchedCart.addProduct(product, {
-    //             through: { quantity: newQty },
-    //         })
-    //     })
-    //     .then(result => {
-    //         res.redirect('/cart')
-    //     })
-    //     .catch(err => console.log(err))
 }
 
 exports.getOrders = (req, res, next) => {
